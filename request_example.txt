@@ -1,0 +1,29 @@
+This is the part of subtitles for the music man 1962 Movie. Please translate it to Russian Make sure that in the end you will get the correct subtitles In .srt format. Please do not format the result with the markdown leave only the subtitles as if they were in .srt file. Please leave the numbers of the subtitle entries and the times as is.
+
+Example:
+48
+00:04:47,829 --> 00:04:48,871
+What's the fella's line?
+What's his line?
+
+Result:
+48
+00:04:47,829 --> 00:04:48,871
+Чем этот парень занимается?
+Какая у него профессия?
+
+
+1
+00:02:38,408 --> 00:02:40,451
+All aboard!
+
+2
+00:02:49,252 --> 00:02:50,461
+Let him go, Orville.
+
+3
+00:02:50,670 --> 00:02:55,258
+We made it plain we don't want
+no more traveling salesmen in Brighton.
+
+...
