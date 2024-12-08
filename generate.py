@@ -5,6 +5,8 @@ import asyncio
 import math
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+import time
+from threading import Lock, Semaphore
 
 # Load environment variables from .env file
 load_dotenv()
@@ -40,9 +42,35 @@ def split_text_into_chunks(text, chunk_size, separator):
     
     return chunks
 
-def process_chunk(model, prompt, chunk, chunk_index):
+class RateLimiter:
+    def __init__(self, max_requests_per_minute):
+        self.max_requests = max_requests_per_minute
+        self.window_size = 60  # 60 seconds = 1 minute
+        self.requests = []
+        self.lock = Lock()
+        self.semaphore = Semaphore(max_requests_per_minute)
+    
+    def acquire(self):
+        with self.lock:
+            current_time = time.time()
+            # Remove requests older than window_size
+            self.requests = [req_time for req_time in self.requests 
+                           if current_time - req_time < self.window_size]
+            
+            if len(self.requests) >= self.max_requests:
+                oldest_request = self.requests[0]
+                sleep_time = self.window_size - (current_time - oldest_request)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+            
+            self.requests.append(current_time)
+
+def process_chunk(model, prompt, chunk, chunk_index, rate_limiter=None):
     """Process a single chunk with the model and save response to a file."""
     try:
+        if rate_limiter:
+            rate_limiter.acquire()
+            
         final_prompt = f"{prompt}\n\nText chunk to process:\n{chunk}"
         response = model.generate_content(final_prompt)
         
@@ -70,10 +98,17 @@ def process_chunk(model, prompt, chunk, chunk_index):
             
         return error_msg
 
-def generate(prompt, text, separator, parallel_requests, chunk_size):
+def generate(prompt, text, separator, parallel_requests, chunk_size, max_requests_per_minute=None):
     """Generate content using the Google Generative AI model."""
     genai.configure(api_key=os.getenv("API_KEY"))
     model = genai.GenerativeModel("gemini-1.5-flash")
+
+    # Initialize rate limiter if max_requests_per_minute is specified
+    rate_limiter = RateLimiter(max_requests_per_minute) if max_requests_per_minute else None
+    
+    # If rate limiting is enabled, adjust parallel_requests if needed
+    if rate_limiter and parallel_requests > max_requests_per_minute:
+        parallel_requests = max_requests_per_minute
 
     # Calculate effective chunk size (chunk_size minus prompt size to ensure total size stays within limit)
     prompt_size = len(prompt)
@@ -89,7 +124,8 @@ def generate(prompt, text, separator, parallel_requests, chunk_size):
     with ThreadPoolExecutor(max_workers=parallel_requests) as executor:
         for i in range(0, len(chunks), parallel_requests):
             batch = chunks[i:i + parallel_requests]
-            futures = [executor.submit(process_chunk, model, prompt, chunk, i + j) for j, chunk in enumerate(batch)]
+            futures = [executor.submit(process_chunk, model, prompt, chunk, i + j, rate_limiter) 
+                      for j, chunk in enumerate(batch)]
             batch_responses = [future.result() for future in futures]
             all_responses.extend(batch_responses)
 

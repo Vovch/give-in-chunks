@@ -50,11 +50,14 @@ HTML_TEMPLATE = '''
       <label for="separator">Separator:</label><br>
       <textarea id="separator" name="separator" rows="3" cols="80">{{ separator }}</textarea><br>
       
-      <label for="parallel_requests">Amount of Parallel Requests:</label><br>
-      <input type="number" id="parallel_requests" name="parallel_requests" value="{{ parallel_requests or 1 }}"><br>
+      <label for="parallel_requests">Parallel Requests:</label><br>
+      <input type="number" id="parallel_requests" name="parallel_requests" value="{{ parallel_requests if parallel_requests else 3 }}" min="1"><br>
       
-      <label for="chunk_size">Size of a Chunk in Symbols:</label><br>
-      <input type="number" id="chunk_size" name="chunk_size" value="{{ chunk_size or 1000 }}"><br>
+      <label for="max_requests_per_minute">Max Requests per Minute (optional):</label><br>
+      <input type="number" id="max_requests_per_minute" name="max_requests_per_minute" value="{{ max_requests_per_minute if max_requests_per_minute else '' }}" min="1"><br>
+      
+      <label for="chunk_size">Chunk Size:</label><br>
+      <input type="number" id="chunk_size" name="chunk_size" value="{{ chunk_size if chunk_size else 2000 }}" min="100"><br>
       
       <input type="submit" value="Generate">
     </form>
@@ -65,25 +68,30 @@ HTML_TEMPLATE = '''
 
 @app.route('/')
 def index():
-    return render_template_string(HTML_TEMPLATE,
-                                prompt=request.args.get('prompt', ''),
-                                text=request.args.get('text', ''),
-                                separator=request.args.get('separator', ''),
-                                parallel_requests=request.args.get('parallel_requests', 1),
-                                chunk_size=request.args.get('chunk_size', 1000))
+    return render_template_string(HTML_TEMPLATE, 
+                                prompt='', 
+                                text='', 
+                                separator='\n\n',
+                                parallel_requests=3,
+                                chunk_size=2000,
+                                max_requests_per_minute=None)
 
 @app.route('/generate', methods=['POST'])
 def generate_content():
-    prompt = request.form.get('prompt')
-    text = request.form.get('text')
-    separator = request.form.get('separator')
-    parallel_requests = request.form.get('parallel_requests')
-    chunk_size = request.form.get('chunk_size')
+    prompt = request.form.get('prompt', '')
+    text = request.form.get('text', '')
+    separator = request.form.get('separator', '\n\n')
+    parallel_requests = int(request.form.get('parallel_requests', 3))
+    chunk_size = int(request.form.get('chunk_size', 2000))
+    max_requests_per_minute = request.form.get('max_requests_per_minute', '')
     
-    # Call the generate function with the provided parameters
-    result = generate(prompt, text, separator, int(parallel_requests), int(chunk_size))
-    
-    # Return JSON response
+    # Convert empty string to None for max_requests_per_minute
+    if max_requests_per_minute:
+        max_requests_per_minute = int(max_requests_per_minute)
+    else:
+        max_requests_per_minute = None
+
+    result = generate(prompt, text, separator, parallel_requests, chunk_size, max_requests_per_minute)
     return jsonify({'result': result})
 
 if __name__ == '__main__':
