@@ -134,3 +134,24 @@ python main.py
 - `requirements.txt`: Python package dependencies
 - `.env`: Configuration for API keys (not in repository)
 - `responses/`: Directory for storing chunk processing results
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please make sure to:
+- Update the README.md with details of changes if applicable
+- Update requirements.txt if you add new dependencies
+- Follow existing code style and formatting
+- Add comments to your code where necessary
+- Test your changes thoroughly
+
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+
+The Apache License 2.0 is a permissive license that allows users to use the software freely while requiring attribution to the original author and maintaining the same license for derivative works.

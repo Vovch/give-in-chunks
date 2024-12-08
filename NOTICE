@@ -1,0 +1,23 @@
+Give-in-Chunks
+Copyright 2024 Vladimir Mironov (vovch00@gmail.com)
+
+This product includes software developed by Vladimir Mironov.
+
+This software uses the following third-party open source components:
+
+Flask
+Copyright 2010 Pallets
+Licensed under the BSD 3-Clause License
+https://github.com/pallets/flask
+
+Google Generative AI Python SDK
+Copyright 2023 Google LLC
+Licensed under the Apache License, Version 2.0
+https://github.com/google/generative-ai-python
+
+python-dotenv
+Copyright (c) 2014, Saurabh Kumar
+Licensed under the BSD 3-Clause License
+https://github.com/theskumar/python-dotenv
+
+The respective licenses of these components are included in their corresponding files within the source code.
