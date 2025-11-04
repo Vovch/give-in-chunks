@@ -90,6 +90,28 @@ pip install -r requirements.txt
 API_KEY=your_google_api_key_here
 ```
 
+## Docker
+
+Приложение можно запустить без локальной установки Python.
+
+1. Убедитесь, что Docker и (при необходимости) Docker Compose установлены.
+2. Создайте файл `.env` (или скопируйте `.env.example`) и задайте `API_KEY`.
+3. Запустите сервисы через Docker Compose:
+   ```bash
+   docker compose up --build
+   ```
+   Веб-интерфейс будет доступен по адресу `http://localhost:5000`, а результаты сохранятся в локальной папке `responses/`.
+4. Остановите контейнеры командой:
+   ```bash
+   docker compose down
+   ```
+
+Для запуска без Compose:
+```bash
+docker build -t give-in-chunks .
+docker run --rm -p 5000:5000 --env-file .env -v %cd%/responses:/app/responses give-in-chunks
+```
+Замените `%cd%` на `$(pwd)` при использовании Unix-подобной оболочки.
 ## Использование
 
 1. Запустите Flask-сервер:

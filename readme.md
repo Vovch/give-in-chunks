@@ -92,6 +92,29 @@ pip install -r requirements.txt
 API_KEY=your_google_api_key_here
 ```
 
+## Docker
+
+You can run the application without setting up Python locally.
+
+1. Make sure you have Docker (and optionally Docker Compose) installed.
+2. Create a `.env` file (or copy `.env.example`) and set `API_KEY`.
+3. Launch the stack with Docker Compose:
+   ```bash
+   docker compose up --build
+   ```
+   The web UI becomes available at `http://localhost:5000`, and responses are written to the local `responses/` folder.
+4. Stop the stack with:
+   ```bash
+   docker compose down
+   ```
+
+To run the container without Compose:
+```bash
+docker build -t give-in-chunks .
+docker run --rm -p 5000:5000 --env-file .env -v %cd%/responses:/app/responses give-in-chunks
+```
+Replace `%cd%` with `$(pwd)` when using a Unix-like shell.
+
 ## Usage
 
 1. Start the Flask server:
