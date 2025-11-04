@@ -1,11 +1,11 @@
 # Overview
 
-A web application that processes large text inputs by splitting them into manageable chunks and processing each chunk through Google's Gemini AI model (Gemini Flash - 2.0, currently). The interface supports pasting or uploading prompt/content files, provides rate limiting controls, and offers a consolidated download of the model output.
+A web application for processing large text inputs. It splits the text into manageable chunks and sends each chunk to Google Gemini (currently Gemini Flash 2.0). The interface supports pasting or uploading prompt/content files, offers rate limiting controls, and provides a consolidated download of the model output.
 
 > For a Russian translation, see [`readme.ru.md`](readme.ru.md).
 
 
-# Example usage:
+## Example usage
 
 Prompt:
 ```
@@ -42,8 +42,7 @@ no more traveling salesmen in Brighton.
 ...
 ```
 
-Separator: `\n\n`
-(double pressed enter)
+Separator: `\n\n` (press Enter twice)
 
 Parallel Requests: `15`
 
@@ -67,34 +66,9 @@ Chunk Size: `6500`
 - Google Cloud API key for Gemini AI
 - Modern web browser
 
-## Installation
+## Preferred installation (Docker)
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/give-in-chunks.git
-cd give-in-chunks
-```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
-```
-
-3. Install required packages:
-```bash
-pip install -r requirements.txt
-```
-
-4. Create a `.env` file in the project root and add your Google API key:
-```bash
-API_KEY=your_google_api_key_here
-```
-
-## Docker
-
-You can run the application without setting up Python locally.
+The quickest way to get started is to run the app in Docker. This keeps dependencies isolated and matches the recommended setup.
 
 1. Make sure you have Docker (and optionally Docker Compose) installed.
 2. Create a `.env` file (or copy `.env.example`) and set `API_KEY`.
@@ -115,6 +89,31 @@ docker run --rm -p 5000:5000 --env-file .env -v %cd%/responses:/app/responses gi
 ```
 Replace `%cd%` with `$(pwd)` when using a Unix-like shell.
 
+## Manual installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/give-in-chunks.git
+cd give-in-chunks
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
+```
+
+3. Install the dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Create a `.env` file in the project root and add your Google API key:
+```bash
+API_KEY=your_google_api_key_here
+```
+
 ## Usage
 
 1. Start the Flask server:
@@ -132,11 +131,11 @@ python main.py
    - Maximum requests per minute (optional rate limiting)
    - Chunk size in characters (default: `8000`)
 
-4. Click **Generate** to process your text. After completion the page displays the model output along with a download link for the combined response.
+4. Click **Generate** to process your text. After completion, the page displays the model output along with a download link for the combined response.
 
 ## Configuration Options
 
-- **Separator**: Custom text pattern for splitting chunks (e.g., '\n\n' for paragraphs)
+- **Separator**: Custom text pattern for splitting chunks (e.g., `\n\n` for paragraphs)
 - **Parallel Requests**: Number of chunks to process simultaneously
 - **Max Requests per Minute**: Optional rate limiting for API requests
 - **Chunk Size**: Controls the maximum size of each text chunk (in characters)
@@ -170,8 +169,8 @@ python main.py
 5. Open a Pull Request
 
 Please make sure to:
-- Update the README.md with details of changes if applicable
-- Update requirements.txt if you add new dependencies
+- Update `README.md` with details of your changes when relevant
+- Update `requirements.txt` if you add new dependencies
 - Follow existing code style and formatting
 - Add comments to your code where necessary
 - Test your changes thoroughly
