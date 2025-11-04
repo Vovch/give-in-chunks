@@ -1,6 +1,6 @@
 # Overview
 
-A web application that processes large text inputs by splitting them into manageable chunks and processing each chunk through Google's Gemini AI model (Gemini Flash - 1.5, currently). The interface supports pasting or uploading prompt/content files, provides rate limiting controls, and offers a consolidated download of the model output.
+A web application that processes large text inputs by splitting them into manageable chunks and processing each chunk through Google's Gemini AI model (Gemini Flash - 2.0, currently). The interface supports pasting or uploading prompt/content files, provides rate limiting controls, and offers a consolidated download of the model output.
 
 > 🇷🇺 Русскоязычную версию описания вы найдёте в файле `readme.ru.md`.
 
