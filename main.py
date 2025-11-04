@@ -1,4 +1,5 @@
 from tkinter import W
+from typing import Optional
 from flask import Flask, request, render_template_string, jsonify
 from generate import generate
 import subprocess
@@ -37,16 +38,50 @@ HTML_TEMPLATE = """
           document.getElementById('result').innerHTML = `<div class="response">Error: ${error}</div>`;
         });
       }
+
+      function registerFileLoader(fileInputId, textareaId) {
+        document.addEventListener('DOMContentLoaded', () => {
+          const fileInput = document.getElementById(fileInputId);
+          const textarea = document.getElementById(textareaId);
+
+          if (!fileInput || !textarea) {
+            return;
+          }
+
+          fileInput.addEventListener('change', () => {
+            const [file] = fileInput.files;
+            if (!file) {
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              textarea.value = event.target?.result || '';
+            };
+            reader.onerror = () => {
+              console.error(`Failed to read file: ${file.name}`);
+            };
+            reader.readAsText(file);
+          });
+        });
+      }
+
+      registerFileLoader('prompt_file', 'prompt');
+      registerFileLoader('text_file', 'text');
     </script>
   </head>
   <body>
     <h1>Generate Content with LLM</h1>
-    <form onsubmit="submitForm(event)">
+    <form onsubmit="submitForm(event)" enctype="multipart/form-data">
       <label for="prompt">Prompt for LLM:</label><br>
       <textarea id="prompt" name="prompt" rows="10" cols="80">{{ prompt }}</textarea><br>
+      <label for="prompt_file">Prompt File (optional):</label><br>
+      <input type="file" id="prompt_file" name="prompt_file" accept=".txt,.md,.srt,.json,.csv"><br>
 
       <label for="text">Text:</label><br>
       <textarea id="text" name="text" rows="10" cols="80">{{ text }}</textarea><br>
+      <label for="text_file">Text File (optional):</label><br>
+      <input type="file" id="text_file" name="text_file" accept=".txt,.md,.srt,.json,.csv"><br>
 
       <label for="separator">Separator:</label><br>
       <textarea id="separator" name="separator" rows="3" cols="80">{{ separator }}</textarea><br>
@@ -86,7 +121,7 @@ Result:
 Чем этот парень занимается?
 Какая у него профессия?""",
         text="",
-        separator="\n\n\n",
+        separator="\n\n",
         parallel_requests=5,
         chunk_size=8000,
         max_requests_per_minute=5,
@@ -95,9 +130,32 @@ Result:
 
 @app.route("/generate", methods=["POST"])
 def generate_content():
-    prompt = request.form.get("prompt", "")
-    text = request.form.get("text", "")
-    separator = request.form.get("separator", "\n\n\n")
+
+    def read_uploaded_text(field_name: str) -> Optional[str]:
+        uploaded_file = request.files.get(field_name)
+        if not uploaded_file or not uploaded_file.filename:
+            return None
+
+        file_bytes = uploaded_file.read()
+        if not file_bytes:
+            return ""
+
+        for encoding in ("utf-8-sig", "utf-8"):
+            try:
+                return file_bytes.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+
+        return file_bytes.decode("utf-8", errors="replace")
+
+    prompt = read_uploaded_text("prompt_file")
+    if prompt is None:
+        prompt = request.form.get("prompt", "")
+
+    text = read_uploaded_text("text_file")
+    if text is None:
+        text = request.form.get("text", "")
+    separator = request.form.get("separator", "\n\n")
     parallel_requests = int(request.form.get("parallel_requests", 5))
     chunk_size = int(request.form.get("chunk_size", 8000))
     max_requests_per_minute = request.form.get("max_requests_per_minute", 5)
