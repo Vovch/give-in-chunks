@@ -1,10 +1,11 @@
-from tkinter import W
-from typing import Optional
-from flask import Flask, request, render_template_string, jsonify
+import os
+from typing import Dict, Optional
+from uuid import uuid4
+from flask import Flask, request, render_template_string, jsonify, send_file, abort
 from generate import generate
-import subprocess
 
 app = Flask(__name__)
+generated_files: Dict[str, str] = {}
 
 HTML_TEMPLATE = """
 <!doctype html>
@@ -31,7 +32,10 @@ HTML_TEMPLATE = """
         })
         .then(response => response.json())
         .then(data => {
-          document.getElementById('result').innerHTML = `<div class="response"><h2>Generated Content:</h2>${data.result}</div>`;
+          const downloadLink = data.download_id
+            ? `<p><a href="/download/${data.download_id}" download>Download combined output</a></p>`
+            : '';
+          document.getElementById('result').innerHTML = `<div class="response"><h2>Generated Content:</h2>${downloadLink}${data.result}</div>`;
         })
         .catch(error => {
           console.error('Error:', error);
@@ -169,7 +173,25 @@ def generate_content():
     result = generate(
         prompt, text, separator, parallel_requests, chunk_size, max_requests_per_minute
     )
-    return jsonify({"result": result})
+    os.makedirs("responses", exist_ok=True)
+    download_id = str(uuid4())
+    output_path = os.path.join("responses", f"combined_{download_id}.txt")
+    with open(output_path, "w", encoding="utf-8") as combined_file:
+        combined_file.write(result)
+    generated_files[download_id] = output_path
+
+    return jsonify({"result": result, "download_id": download_id})
+
+@app.route("/download/<file_id>", methods=["GET"])
+def download_file(file_id: str):
+    file_path = generated_files.get(file_id)
+    if not file_path or not os.path.isfile(file_path):
+        abort(404)
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=os.path.basename(file_path),
+    )
 
 
 if __name__ == "__main__":
