@@ -1,10 +1,11 @@
+from tkinter import W
 from flask import Flask, request, render_template_string, jsonify
 from generate import generate
 import subprocess
 
 app = Flask(__name__)
 
-HTML_TEMPLATE = '''
+HTML_TEMPLATE = """
 <!doctype html>
 <html lang="en">
   <head>
@@ -22,7 +23,7 @@ HTML_TEMPLATE = '''
         event.preventDefault();
         const form = event.target;
         const formData = new FormData(form);
-        
+
         fetch('/generate', {
           method: 'POST',
           body: formData
@@ -43,56 +44,75 @@ HTML_TEMPLATE = '''
     <form onsubmit="submitForm(event)">
       <label for="prompt">Prompt for LLM:</label><br>
       <textarea id="prompt" name="prompt" rows="10" cols="80">{{ prompt }}</textarea><br>
-      
+
       <label for="text">Text:</label><br>
       <textarea id="text" name="text" rows="10" cols="80">{{ text }}</textarea><br>
-      
+
       <label for="separator">Separator:</label><br>
       <textarea id="separator" name="separator" rows="3" cols="80">{{ separator }}</textarea><br>
-      
+
       <label for="parallel_requests">Parallel Requests:</label><br>
       <input type="number" id="parallel_requests" name="parallel_requests" value="{{ parallel_requests if parallel_requests else 3 }}" min="1"><br>
-      
+
       <label for="max_requests_per_minute">Max Requests per Minute (optional):</label><br>
       <input type="number" id="max_requests_per_minute" name="max_requests_per_minute" value="{{ max_requests_per_minute if max_requests_per_minute else '' }}" min="1"><br>
-      
+
       <label for="chunk_size">Chunk Size:</label><br>
       <input type="number" id="chunk_size" name="chunk_size" value="{{ chunk_size if chunk_size else 2000 }}" min="100"><br>
-      
+
       <input type="submit" value="Generate">
     </form>
     <div id="result"></div>
   </body>
 </html>
-'''
+"""
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template_string(HTML_TEMPLATE, 
-                                prompt='', 
-                                text='', 
-                                separator='\n\n',
-                                parallel_requests=3,
-                                chunk_size=2000,
-                                max_requests_per_minute=None)
+    return render_template_string(
+        HTML_TEMPLATE,
+        prompt="""This is the part of subtitles for a movie. Please translate it to Russian. Make sure that in the end you will get the correct subtitles In .srt format. Please do not format the result with the markdown leave only the subtitles as if they were in .srt file. Please leave the numbers of the subtitle entries and the times as is.
 
-@app.route('/generate', methods=['POST'])
+Example:
+48
+00:04:47,829 --> 00:04:48,871
+What's the fella's line?
+What's his line?
+
+Result:
+48
+00:04:47,829 --> 00:04:48,871
+Чем этот парень занимается?
+Какая у него профессия?""",
+        text="",
+        separator="\n\n\n",
+        parallel_requests=5,
+        chunk_size=8000,
+        max_requests_per_minute=5,
+    )
+
+
+@app.route("/generate", methods=["POST"])
 def generate_content():
-    prompt = request.form.get('prompt', '')
-    text = request.form.get('text', '')
-    separator = request.form.get('separator', '\n\n')
-    parallel_requests = int(request.form.get('parallel_requests', 3))
-    chunk_size = int(request.form.get('chunk_size', 2000))
-    max_requests_per_minute = request.form.get('max_requests_per_minute', '')
-    
+    prompt = request.form.get("prompt", "")
+    text = request.form.get("text", "")
+    separator = request.form.get("separator", "\n\n\n")
+    parallel_requests = int(request.form.get("parallel_requests", 5))
+    chunk_size = int(request.form.get("chunk_size", 8000))
+    max_requests_per_minute = request.form.get("max_requests_per_minute", 5)
+
     # Convert empty string to None for max_requests_per_minute
     if max_requests_per_minute:
         max_requests_per_minute = int(max_requests_per_minute)
     else:
         max_requests_per_minute = None
 
-    result = generate(prompt, text, separator, parallel_requests, chunk_size, max_requests_per_minute)
-    return jsonify({'result': result})
+    result = generate(
+        prompt, text, separator, parallel_requests, chunk_size, max_requests_per_minute
+    )
+    return jsonify({"result": result})
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)

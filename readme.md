@@ -1,6 +1,6 @@
 # Overview
 
-A web application that processes large text inputs by splitting them into manageable chunks and processes each chunk through Google's Gemini AI model (Gemini Flash - 1.5, currently). The application includes rate limiting capabilities and parallel processing features. 
+A web application that processes large text inputs by splitting them into manageable chunks and processes each chunk through Google's Gemini AI model (Gemini Flash - 1.5, currently). The application includes rate limiting capabilities and parallel processing features.
 
 
 # Example usage:
@@ -40,7 +40,7 @@ no more traveling salesmen in Brighton.
 ...
 ```
 
-Separator: `\n\n` 
+Separator: `\n\n`
 (double pressed enter)
 
 Parallel Requests: `15`
@@ -102,9 +102,9 @@ python main.py
    - Prompt for the AI model
    - Input text to be processed
    - Separator for splitting text into chunks (default: '\n\n')
-   - Number of parallel requests (default: 3)
+   - Number of parallel requests (default:53)
    - Maximum requests per minute (optional rate limiting)
-   - Chunk size in characters (default: 2000)
+   - Chunk size in characters (default: 8000)
 
 4. Click "Generate" to process your text
 
