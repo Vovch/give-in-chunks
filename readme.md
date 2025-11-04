@@ -1,6 +1,8 @@
 # Overview
 
-A web application that processes large text inputs by splitting them into manageable chunks and processes each chunk through Google's Gemini AI model (Gemini Flash - 1.5, currently). The application includes rate limiting capabilities and parallel processing features.
+A web application that processes large text inputs by splitting them into manageable chunks and processing each chunk through Google's Gemini AI model (Gemini Flash - 1.5, currently). The interface supports pasting or uploading prompt/content files, provides rate limiting controls, and offers a consolidated download of the model output.
+
+> 🇷🇺 Русскоязычную версию описания вы найдёте в файле `readme.ru.md`.
 
 
 # Example usage:
@@ -55,8 +57,9 @@ Chunk Size: `6500`
 - Process text chunks in parallel using Google's Gemini AI model
 - Rate limiting to control API requests per minute
 - Save individual chunk responses to separate files
-- Web interface for easy interaction
-- Configurable chunk size and parallel processing
+- Upload prompt/input text from local files for quicker setup
+- Download a single combined output file after processing
+- Web interface for easy interaction with configurable chunk size and parallelism
 
 ## Prerequisites
 
@@ -98,15 +101,15 @@ python main.py
 
 2. Open your web browser and navigate to `http://localhost:5000`
 
-3. In the web interface, you can configure:
-   - Prompt for the AI model
-   - Input text to be processed
-   - Separator for splitting text into chunks (default: '\n\n')
-   - Number of parallel requests (default:53)
+3. In the web interface, you can configure or supply:
+   - Prompt for the AI model (paste text or select a prompt file)
+   - Input text to be processed (paste text or select a text file)
+   - Separator for splitting text into chunks (default: `\n\n\n`)
+   - Number of parallel requests (default: `5`)
    - Maximum requests per minute (optional rate limiting)
-   - Chunk size in characters (default: 8000)
+   - Chunk size in characters (default: `8000`)
 
-4. Click "Generate" to process your text
+4. Click **Generate** to process your text. After completion the page displays the model output along with a download link for the combined response.
 
 ## Configuration Options
 
@@ -118,8 +121,8 @@ python main.py
 ## Output
 
 - Processed responses are displayed in the web interface
-- Individual chunk responses are saved in the `responses` directory
-- Each response file is named with timestamp and chunk index for easy tracking
+- A consolidated response file can be downloaded via the provided link
+- Individual chunk responses remain saved in the `responses` directory with timestamped names for easy tracking
 
 ## Error Handling
 
